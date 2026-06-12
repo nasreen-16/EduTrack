@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+{% block page_sub %}Mark and track daily attendance{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Mark Attendance -->
+  <div class="col-lg-7">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-calendar-check me-2"></i>Mark Attendance</h3>
+      </div>
+      <div class="panel-body">
+        <form method="POST">
+          <div class="mb-4">
+            <label class="form-label">Select Date</label>
+            <input type="date" name="date" class="form-control" value="{{ selected_date }}"
+                   onchange="this.form.submit()" style="max-width:220px;">
+          </div>
+
+          {% if students %}
+          <div class="attendance-list">
+            {% for s in students %}
+            <div class="attendance-row">
+              <div class="student-cell">
+                <div class="avatar-sm">{{ s.name[0]|upper }}</div>
+                <div>
+                  <div class="fw-600">{{ s.name }}</div>
+                  <div class="text-muted small">{{ s.student_id }} · {{ s.class }}-{{ s.section }}</div>
+                </div>
+              </div>
+              <div class="att-toggle">
+                <label class="toggle-label {% if attendance_map.get(s.id, 'Absent') == 'Present' %}active{% endif %}" id="lbl_{{ s.id }}">
+                  <input type="radio" name="status_{{ s.id }}" value="Present"
+                         {% if attendance_map.get(s.id, 'Absent') == 'Present' %}checked{% endif %}
+                         onchange="updateToggle({{ s.id }}, 'Present')">
+                  <span class="toggle-present">Present</span>
+                </label>
+                <label class="toggle-label absent-lbl {% if attendance_map.get(s.id, 'Absent') == 'Absent' %}active-absent{% endif %}" id="lbl_a_{{ s.id }}">
+                  <input type="radio" name="status_{{ s.id }}" value="Absent"
+                         {% if attendance_map.get(s.id, 'Absent') == 'Absent' %}checked{% endif %}
+                         onchange="updateToggle({{ s.id }}, 'Absent')">
+                  <span class="toggle-absent">Absent</span>
+                </label>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn-primary-custom">
+              <i class="bi bi-check2-all me-2"></i>Save Attendance
+            </button>
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>No students found. <a href="{{ url_for('add_student') }}">Add students first</a>.</p>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Summary -->
+  <div class="col-lg-5">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-bar-chart me-2"></i>Attendance Summary</h3>
+      </div>
+      <div class="panel-body p-0">
+        {% if history %}
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th class="text-center">Present</th>
+              <th class="text-center">%</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in history %}
+            {% set pct = ((h.present_count / h.total_count * 100)|round(0)|int) if h.total_count > 0 else 0 %}
+            <tr>
+              <td>
+                <div class="fw-500">{{ h.name }}</div>
+                <div class="text-muted small">{{ h.sid }}</div>
+              </td>
+              <td class="text-center">{{ h.present_count }}/{{ h.total_count }}</td>
+              <td class="text-center">
+                <span class="pct-badge {% if pct >= 75 %}pct-good{% elif pct >= 50 %}pct-warn{% else %}pct-bad{% endif %}">
+                  {{ pct }}%
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-calendar-x"></i>
+          <p>No attendance records yet.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateToggle(id, val) {
+  const lp = document.getElementById('lbl_' + id);
+  const la = document.getElementById('lbl_a_' + id);
+  if (val === 'Present') {
+    lp.classList.add('active'); lp.classList.remove('active-absent');
+    la.classList.remove('active'); la.classList.remove('active-absent');
+  } else {
+    la.classList.add('active-absent'); la.classList.remove('active');
+    lp.classList.remove('active');
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Marks{% endblock %}
+{% block page_title %}{{ action }} Marks{% endblock %}
+{% block page_sub %}{% if action == 'Edit' %}Update mark entry{% else %}Record new marks{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-pencil-square me-2"></i>{{ action }} Marks</h3>
+        <a href="{{ url_for('marks') }}" class="panel-link"><i class="bi bi-arrow-left me-1"></i>Back</a>
+      </div>
+      <div class="panel-body">
+        <form method="POST">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Student <span class="text-danger">*</span></label>
+              <select name="student_id" class="form-select" required>
+                <option value="">Select student</option>
+                {% for s in students %}
+                <option value="{{ s.id }}" {% if mark and mark.student_id == s.id %}selected{% endif %}>
+                  {{ s.name }} ({{ s.student_id }}) — Class {{ s.class }}-{{ s.section }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Subject <span class="text-danger">*</span></label>
+              <input type="text" name="subject" class="form-control" required
+                     value="{{ mark.subject if mark else '' }}" placeholder="e.g. Mathematics">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Exam Name <span class="text-danger">*</span></label>
+              <input type="text" name="exam_name" class="form-control" required
+                     value="{{ mark.exam_name if mark else '' }}" placeholder="e.g. Unit Test 1">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Marks Obtained <span class="text-danger">*</span></label>
+              <input type="number" name="marks_obtained" class="form-control" required min="0" step="0.5"
+                     value="{{ mark.marks_obtained if mark else '' }}" placeholder="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Total Marks <span class="text-danger">*</span></label>
+              <input type="number" name="total_marks" class="form-control" required min="1" step="0.5"
+                     value="{{ mark.total_marks if mark else '100' }}" placeholder="100">
+            </div>
+          </div>
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn-primary-custom">
+              <i class="bi bi-check2-circle me-2"></i>{{ action }} Marks
+            </button>
+            <a href="{{ url_for('marks') }}" class="btn-secondary-custom ms-2">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

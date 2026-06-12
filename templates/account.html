@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}My Account{% endblock %}
+{% block page_title %}My Account{% endblock %}
+{% block page_sub %}Manage your profile and password{% endblock %}
+
+{% block content %}
+<div class="row g-4 justify-content-center">
+
+  <!-- Profile card -->
+  <div class="col-lg-5">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-person-circle me-2"></i>Profile Information</h3>
+      </div>
+      <div class="panel-body">
+
+        <!-- Avatar display -->
+        <div class="account-avatar-wrap mb-4">
+          <div class="account-avatar">{{ teacher.full_name[0]|upper }}</div>
+          <div>
+            <div class="account-name">{{ teacher.full_name }}</div>
+            <div class="account-username">@{{ teacher.username }}</div>
+          </div>
+        </div>
+
+        <form method="POST">
+          <input type="hidden" name="action" value="update_profile">
+          <div class="mb-3">
+            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+            <div class="input-group-custom">
+              <i class="bi bi-person-fill input-icon"></i>
+              <input type="text" name="full_name" class="form-control custom-input"
+                     value="{{ teacher.full_name }}" required minlength="2">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Username <span class="text-danger">*</span></label>
+            <div class="input-group-custom">
+              <i class="bi bi-at input-icon"></i>
+              <input type="text" name="username" class="form-control custom-input"
+                     value="{{ teacher.username }}" required minlength="3"
+                     oninput="this.value=this.value.replace(/\s/g,'')">
+            </div>
+            <div class="field-hint">Used to sign in. Minimum 3 characters, no spaces.</div>
+          </div>
+          <button type="submit" class="btn-primary-custom w-100">
+            <i class="bi bi-check2-circle me-2"></i>Save Profile
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change password card -->
+  <div class="col-lg-5">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-shield-lock-fill me-2"></i>Change Password</h3>
+      </div>
+      <div class="panel-body">
+        <form method="POST">
+          <input type="hidden" name="action" value="change_password">
+          <div class="mb-3">
+            <label class="form-label">Current Password <span class="text-danger">*</span></label>
+            <div class="input-group-custom">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input type="password" name="current_password" class="form-control custom-input"
+                     placeholder="Your current password" required id="curPwd">
+              <button type="button" class="pw-toggle" onclick="togglePwd('curPwd','curIcon')">
+                <i class="bi bi-eye" id="curIcon"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">New Password <span class="text-danger">*</span></label>
+            <div class="input-group-custom">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input type="password" name="new_password" class="form-control custom-input"
+                     placeholder="At least 6 characters" required minlength="6"
+                     id="newPwd" oninput="checkStrength(this.value); checkNewMatch()">
+              <button type="button" class="pw-toggle" onclick="togglePwd('newPwd','newIcon')">
+                <i class="bi bi-eye" id="newIcon"></i>
+              </button>
+            </div>
+            <div class="pw-strength-wrap mt-2" id="strengthWrap" style="display:none;">
+              <div class="pw-strength-bar">
+                <div class="pw-strength-fill" id="strengthFill"></div>
+              </div>
+              <span class="pw-strength-label" id="strengthLabel"></span>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+            <div class="input-group-custom">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input type="password" name="confirm_password" class="form-control custom-input"
+                     placeholder="Re-enter new password" required
+                     id="conPwd" oninput="checkNewMatch()">
+              <button type="button" class="pw-toggle" onclick="togglePwd('conPwd','conIcon')">
+                <i class="bi bi-eye" id="conIcon"></i>
+              </button>
+            </div>
+            <div class="field-hint" id="matchHint"></div>
+          </div>
+          <button type="submit" class="btn-primary-custom w-100">
+            <i class="bi bi-shield-check me-2"></i>Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="panel mt-4 panel-danger-zone">
+      <div class="panel-header">
+        <h3 class="panel-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Sign Out</h3>
+      </div>
+      <div class="panel-body">
+        <p class="text-secondary small mb-3">You will be returned to the login screen and your session will end.</p>
+        <a href="{{ url_for('logout') }}" class="btn-danger-custom w-100">
+          <i class="bi bi-box-arrow-right me-2"></i>Sign Out Now
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function togglePwd(fieldId, iconId) {
+  const f = document.getElementById(fieldId);
+  const i = document.getElementById(iconId);
+  if (f.type === 'password') { f.type = 'text'; i.className = 'bi bi-eye-slash'; }
+  else { f.type = 'password'; i.className = 'bi bi-eye'; }
+}
+
+function checkStrength(pw) {
+  const wrap  = document.getElementById('strengthWrap');
+  const fill  = document.getElementById('strengthFill');
+  const label = document.getElementById('strengthLabel');
+  if (!pw) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  let score = 0;
+  if (pw.length >= 6)           score++;
+  if (pw.length >= 10)          score++;
+  if (/[A-Z]/.test(pw))         score++;
+  if (/[0-9]/.test(pw))         score++;
+  if (/[^A-Za-z0-9]/.test(pw))  score++;
+  const levels = [
+    { pct:'20%', color:'#EF4444', text:'Very weak' },
+    { pct:'40%', color:'#F97316', text:'Weak' },
+    { pct:'60%', color:'#F59E0B', text:'Fair' },
+    { pct:'80%', color:'#10B981', text:'Strong' },
+    { pct:'100%',color:'#059669', text:'Very strong' },
+  ];
+  const lvl = levels[Math.min(score-1, 4)] || levels[0];
+  fill.style.width = lvl.pct;
+  fill.style.background = lvl.color;
+  label.textContent = lvl.text;
+  label.style.color = lvl.color;
+}
+
+function checkNewMatch() {
+  const pw   = document.getElementById('newPwd').value;
+  const cf   = document.getElementById('conPwd').value;
+  const hint = document.getElementById('matchHint');
+  if (!cf) { hint.textContent = ''; return; }
+  if (pw === cf) { hint.textContent = '✓ Passwords match'; hint.style.color = '#10B981'; }
+  else           { hint.textContent = '✗ Passwords do not match'; hint.style.color = '#EF4444'; }
+}
+</script>
+{% endblock %}

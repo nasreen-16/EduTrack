@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Student{% endblock %}
+{% block page_title %}{{ action }} Student{% endblock %}
+{% block page_sub %}{% if action == 'Edit' %}Update student information{% else %}Register a new student{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <i class="bi bi-person-{% if action == 'Edit' %}gear{% else %}plus{% endif %}-fill me-2"></i>
+          {{ action }} Student
+        </h3>
+        <a href="{{ url_for('students') }}" class="panel-link"><i class="bi bi-arrow-left me-1"></i>Back</a>
+      </div>
+      <div class="panel-body">
+        <form method="POST">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Student ID <span class="text-danger">*</span></label>
+              <input type="text" name="student_id" class="form-control" required
+                     value="{{ student.student_id if student else '' }}" placeholder="e.g. STU001">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" required
+                     value="{{ student.name if student else '' }}" placeholder="Student's full name">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Class <span class="text-danger">*</span></label>
+              <select name="class" class="form-select" required>
+                <option value="">Select class</option>
+                {% for c in ['1','2','3','4','5','6','7','8','9','10','11','12'] %}
+                <option value="{{ c }}" {% if student and student.class == c %}selected{% endif %}>Class {{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Section <span class="text-danger">*</span></label>
+              <select name="section" class="form-select" required>
+                <option value="">Select section</option>
+                {% for sec in ['A','B','C','D','E'] %}
+                <option value="{{ sec }}" {% if student and student.section == sec %}selected{% endif %}>Section {{ sec }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Gender <span class="text-danger">*</span></label>
+              <select name="gender" class="form-select" required>
+                <option value="">Select gender</option>
+                {% for g in ['Male','Female','Other'] %}
+                <option value="{{ g }}" {% if student and student.gender == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Parent / Guardian Name</label>
+              <input type="text" name="parent_name" class="form-control"
+                     value="{{ student.parent_name if student else '' }}" placeholder="Parent's name">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Parent Contact Number</label>
+              <input type="text" name="parent_contact" class="form-control"
+                     value="{{ student.parent_contact if student else '' }}" placeholder="+91 98765 43210">
+            </div>
+          </div>
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn-primary-custom">
+              <i class="bi bi-check2-circle me-2"></i>{{ action }} Student
+            </button>
+            <a href="{{ url_for('students') }}" class="btn-secondary-custom ms-2">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

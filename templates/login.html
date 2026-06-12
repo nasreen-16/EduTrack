@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — EduTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="login-page">
+
+<div class="login-split">
+  <!-- Left branding panel -->
+  <div class="login-panel-left">
+    <div class="login-left-content">
+      <div class="login-brand">
+        <div class="login-brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <span>EduTrack</span>
+      </div>
+      <h2 class="login-headline">Track every milestone.<br>Celebrate every win.</h2>
+      <p class="login-desc">A unified system for teachers to manage student progress, attendance, marks, achievements, and certifications — all in one place.</p>
+      <div class="login-features">
+        <div class="login-feat"><i class="bi bi-check2-circle"></i> Attendance tracking</div>
+        <div class="login-feat"><i class="bi bi-check2-circle"></i> Marks &amp; grade analytics</div>
+        <div class="login-feat"><i class="bi bi-check2-circle"></i> Achievement records</div>
+        <div class="login-feat"><i class="bi bi-check2-circle"></i> Certification management</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="login-panel-right">
+    <div class="login-form-wrap">
+      <h3 class="login-form-title">Welcome back</h3>
+      <p class="login-form-sub">Sign in to your teacher account</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+            <div class="alert alert-{{ cat }} py-2 small">
+              <i class="bi bi-{% if cat == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-1"></i>{{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST">
+        <div class="mb-4">
+          <label class="form-label fw-500">Username</label>
+          <div class="input-group-custom">
+            <i class="bi bi-person-fill input-icon"></i>
+            <input type="text" name="username" class="form-control custom-input"
+                   placeholder="Enter your username" required autofocus>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-500">Password</label>
+          <div class="input-group-custom">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input type="password" name="password" class="form-control custom-input"
+                   placeholder="Enter your password" required id="pwdField">
+            <button type="button" class="pw-toggle" onclick="togglePwd()">
+              <i class="bi bi-eye" id="pwdIcon"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-login">
+          <i class="bi bi-arrow-right-circle-fill me-2"></i>Sign In
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        Don't have an account?
+        <a href="{{ url_for('register') }}">Create one here</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePwd() {
+  const f = document.getElementById('pwdField');
+  const i = document.getElementById('pwdIcon');
+  if (f.type === 'password') { f.type = 'text'; i.className = 'bi bi-eye-slash'; }
+  else { f.type = 'password'; i.className = 'bi bi-eye'; }
+}
+</script>
+</body>
+</html>

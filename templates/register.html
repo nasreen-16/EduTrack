@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account — EduTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="login-page">
+
+<div class="login-split">
+  <!-- Left branding panel -->
+  <div class="login-panel-left">
+    <div class="login-left-content">
+      <div class="login-brand">
+        <div class="login-brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <span>EduTrack</span>
+      </div>
+      <h2 class="login-headline">Join EduTrack<br>as a Teacher.</h2>
+      <p class="login-desc">Create your personal teacher account to start managing student progress, attendance, marks, and achievements — all in one place.</p>
+      <div class="login-features">
+        <div class="login-feat"><i class="bi bi-person-check-fill"></i> Your own secure account</div>
+        <div class="login-feat"><i class="bi bi-shield-lock-fill"></i> Password you choose</div>
+        <div class="login-feat"><i class="bi bi-pencil-square"></i> Manage your own students</div>
+        <div class="login-feat"><i class="bi bi-gear-fill"></i> Update profile anytime</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="login-panel-right">
+    <div class="login-form-wrap">
+      <h3 class="login-form-title">Create your account</h3>
+      <p class="login-form-sub">Fill in the details below to get started</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+            <div class="alert alert-{{ cat }} py-2 small">
+              <i class="bi bi-{% if cat == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-1"></i>{{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" id="regForm">
+        <!-- Full Name -->
+        <div class="mb-3">
+          <label class="form-label fw-500">Full Name <span class="text-danger">*</span></label>
+          <div class="input-group-custom">
+            <i class="bi bi-person-fill input-icon"></i>
+            <input type="text" name="full_name" class="form-control custom-input"
+                   placeholder="e.g. Mrs. Priya Sharma"
+                   value="{{ request.form.get('full_name', '') }}"
+                   required minlength="2">
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div class="mb-3">
+          <label class="form-label fw-500">Username <span class="text-danger">*</span></label>
+          <div class="input-group-custom">
+            <i class="bi bi-at input-icon"></i>
+            <input type="text" name="username" class="form-control custom-input"
+                   placeholder="Choose a unique username"
+                   value="{{ request.form.get('username', '') }}"
+                   required minlength="3" id="usernameField">
+          </div>
+          <div class="field-hint">Minimum 3 characters. No spaces allowed.</div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label class="form-label fw-500">Password <span class="text-danger">*</span></label>
+          <div class="input-group-custom">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input type="password" name="password" class="form-control custom-input"
+                   placeholder="Choose a strong password"
+                   required minlength="6" id="pwdField"
+                   oninput="checkStrength(this.value)">
+            <button type="button" class="pw-toggle" onclick="togglePwd('pwdField','pwdIcon')">
+              <i class="bi bi-eye" id="pwdIcon"></i>
+            </button>
+          </div>
+          <!-- Password strength meter -->
+          <div class="pw-strength-wrap mt-2" id="strengthWrap" style="display:none;">
+            <div class="pw-strength-bar">
+              <div class="pw-strength-fill" id="strengthFill"></div>
+            </div>
+            <span class="pw-strength-label" id="strengthLabel"></span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-4">
+          <label class="form-label fw-500">Confirm Password <span class="text-danger">*</span></label>
+          <div class="input-group-custom">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input type="password" name="confirm_password" class="form-control custom-input"
+                   placeholder="Re-enter your password"
+                   required id="confirmField"
+                   oninput="checkMatch()">
+            <button type="button" class="pw-toggle" onclick="togglePwd('confirmField','confirmIcon')">
+              <i class="bi bi-eye" id="confirmIcon"></i>
+            </button>
+          </div>
+          <div class="field-hint" id="matchHint"></div>
+        </div>
+
+        <button type="submit" class="btn-login" id="submitBtn">
+          <i class="bi bi-person-plus-fill me-2"></i>Create Account
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        Already have an account?
+        <a href="{{ url_for('login') }}">Sign in here</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePwd(fieldId, iconId) {
+  const f = document.getElementById(fieldId);
+  const i = document.getElementById(iconId);
+  if (f.type === 'password') { f.type = 'text'; i.className = 'bi bi-eye-slash'; }
+  else { f.type = 'password'; i.className = 'bi bi-eye'; }
+}
+
+function checkStrength(pw) {
+  const wrap = document.getElementById('strengthWrap');
+  const fill = document.getElementById('strengthFill');
+  const label = document.getElementById('strengthLabel');
+  if (!pw) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+
+  let score = 0;
+  if (pw.length >= 6)  score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  const levels = [
+    { pct: '20%', color: '#EF4444', text: 'Very weak' },
+    { pct: '40%', color: '#F97316', text: 'Weak' },
+    { pct: '60%', color: '#F59E0B', text: 'Fair' },
+    { pct: '80%', color: '#10B981', text: 'Strong' },
+    { pct: '100%',color: '#059669', text: 'Very strong' },
+  ];
+  const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+  fill.style.width = lvl.pct;
+  fill.style.background = lvl.color;
+  label.textContent = lvl.text;
+  label.style.color = lvl.color;
+}
+
+function checkMatch() {
+  const pw = document.getElementById('pwdField').value;
+  const cf = document.getElementById('confirmField').value;
+  const hint = document.getElementById('matchHint');
+  if (!cf) { hint.textContent = ''; return; }
+  if (pw === cf) {
+    hint.textContent = '✓ Passwords match';
+    hint.style.color = '#10B981';
+  } else {
+    hint.textContent = '✗ Passwords do not match';
+    hint.style.color = '#EF4444';
+  }
+}
+
+// Prevent spaces in username
+document.getElementById('usernameField').addEventListener('input', function() {
+  this.value = this.value.replace(/\s/g, '');
+});
+</script>
+</body>
+</html>

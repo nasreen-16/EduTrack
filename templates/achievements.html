@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Achievements{% endblock %}
+{% block page_title %}Achievements{% endblock %}
+{% block page_sub %}Record student competition results{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Add Achievement form -->
+  <div class="col-lg-4">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-trophy-fill me-2"></i>Add Achievement</h3>
+      </div>
+      <div class="panel-body">
+        <form method="POST" action="{{ url_for('add_achievement') }}">
+          <div class="mb-3">
+            <label class="form-label">Student <span class="text-danger">*</span></label>
+            <select name="student_id" class="form-select" required>
+              <option value="">Select student</option>
+              {% for s in students %}
+              <option value="{{ s.id }}">{{ s.name }} ({{ s.student_id }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Competition Name <span class="text-danger">*</span></label>
+            <input type="text" name="competition_name" class="form-control" required placeholder="e.g. District Science Olympiad">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Competition Type <span class="text-danger">*</span></label>
+            <select name="competition_type" class="form-select" required>
+              <option value="">Select type</option>
+              {% for t in ['Sports','Quiz','Debate','Science Fair','Cultural Event','Coding Competition'] %}
+              <option value="{{ t }}">{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Position / Award <span class="text-danger">*</span></label>
+            <input type="text" name="position" class="form-control" required placeholder="e.g. 1st Place">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date <span class="text-danger">*</span></label>
+            <input type="date" name="date" class="form-control" required>
+          </div>
+          <button type="submit" class="btn-primary-custom w-100">
+            <i class="bi bi-plus-circle-fill me-2"></i>Add Achievement
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievements List -->
+  <div class="col-lg-8">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">All Achievements <span class="count-badge">{{ achievements|length }}</span></h3>
+      </div>
+      <div class="panel-body p-0">
+        {% if achievements %}
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Competition</th>
+              <th>Type</th>
+              <th>Position</th>
+              <th>Date</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in achievements %}
+            <tr>
+              <td class="fw-500">{{ a.student_name }}</td>
+              <td>{{ a.competition_name }}</td>
+              <td>
+                <span class="type-chip type-{{ a.competition_type|lower|replace(' ', '-') }}">
+                  {% if a.competition_type == 'Sports' %}<i class="bi bi-dribbble me-1"></i>
+                  {% elif a.competition_type == 'Quiz' %}<i class="bi bi-lightbulb me-1"></i>
+                  {% elif a.competition_type == 'Coding Competition' %}<i class="bi bi-code-slash me-1"></i>
+                  {% elif a.competition_type == 'Science Fair' %}<i class="bi bi-flask me-1"></i>
+                  {% elif a.competition_type == 'Debate' %}<i class="bi bi-chat-quote me-1"></i>
+                  {% else %}<i class="bi bi-music-note me-1"></i>{% endif %}
+                  {{ a.competition_type }}
+                </span>
+              </td>
+              <td><span class="position-badge">{{ a.position }}</span></td>
+              <td class="text-muted">{{ a.date }}</td>
+              <td class="text-end">
+                <form method="POST" action="{{ url_for('delete_achievement', aid=a.id) }}" class="d-inline" onsubmit="return confirm('Delete this achievement?')">
+                  <button type="submit" class="btn-action btn-delete"><i class="bi bi-trash-fill"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-trophy"></i>
+          <p>No achievements recorded yet.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

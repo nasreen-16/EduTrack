@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Certifications{% endblock %}
+{% block page_title %}Certifications{% endblock %}
+{% block page_sub %}Track student certificates and credentials{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Add Certification form -->
+  <div class="col-lg-4">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-patch-check-fill me-2"></i>Add Certification</h3>
+      </div>
+      <div class="panel-body">
+        <form method="POST" action="{{ url_for('add_certification') }}">
+          <div class="mb-3">
+            <label class="form-label">Student <span class="text-danger">*</span></label>
+            <select name="student_id" class="form-select" required>
+              <option value="">Select student</option>
+              {% for s in students %}
+              <option value="{{ s.id }}">{{ s.name }} ({{ s.student_id }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Certificate Name <span class="text-danger">*</span></label>
+            <input type="text" name="certificate_name" class="form-control" required placeholder="e.g. Python for Beginners">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Issuing Organization <span class="text-danger">*</span></label>
+            <input type="text" name="organization" class="form-control" required placeholder="e.g. Coursera">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date <span class="text-danger">*</span></label>
+            <input type="date" name="date" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Brief description…"></textarea>
+          </div>
+          <button type="submit" class="btn-primary-custom w-100">
+            <i class="bi bi-plus-circle-fill me-2"></i>Add Certification
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certifications List -->
+  <div class="col-lg-8">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">All Certifications <span class="count-badge">{{ certifications|length }}</span></h3>
+      </div>
+      <div class="panel-body p-0">
+        {% if certifications %}
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Certificate</th>
+              <th>Organization</th>
+              <th>Date</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in certifications %}
+            <tr>
+              <td class="fw-500">{{ c.student_name }}</td>
+              <td>
+                <div class="fw-500">{{ c.certificate_name }}</div>
+                {% if c.description %}
+                <div class="text-muted small">{{ c.description[:60] }}{% if c.description|length > 60 %}…{% endif %}</div>
+                {% endif %}
+              </td>
+              <td><span class="badge-soft">{{ c.organization }}</span></td>
+              <td class="text-muted">{{ c.date }}</td>
+              <td class="text-end">
+                <form method="POST" action="{{ url_for('delete_certification', cid=c.id) }}" class="d-inline" onsubmit="return confirm('Delete this certification?')">
+                  <button type="submit" class="btn-action btn-delete"><i class="bi bi-trash-fill"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-patch-check"></i>
+          <p>No certifications recorded yet.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

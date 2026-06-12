@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}Overview of your class{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card stat-emerald">
+      <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_attendance }}</div>
+        <div class="stat-label">Attendance Records</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card stat-amber">
+      <div class="stat-icon"><i class="bi bi-trophy-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_achievements }}</div>
+        <div class="stat-label">Achievements</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card stat-violet">
+      <div class="stat-icon"><i class="bi bi-patch-check-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_certs }}</div>
+        <div class="stat-label">Certifications</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="section-header mb-3">
+  <h2 class="section-title">Quick Actions</h2>
+</div>
+<div class="row g-3 mb-5">
+  <div class="col-6 col-md-3">
+    <a href="{{ url_for('add_student') }}" class="quick-action">
+      <i class="bi bi-person-plus-fill"></i>
+      <span>Add Student</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{{ url_for('attendance') }}" class="quick-action">
+      <i class="bi bi-calendar2-check-fill"></i>
+      <span>Mark Attendance</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{{ url_for('add_marks') }}" class="quick-action">
+      <i class="bi bi-pencil-square"></i>
+      <span>Add Marks</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{{ url_for('achievements') }}" class="quick-action">
+      <i class="bi bi-award-fill"></i>
+      <span>Add Achievement</span>
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Students -->
+  <div class="col-lg-7">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-people me-2"></i>Recent Students</h3>
+        <a href="{{ url_for('students') }}" class="panel-link">View all</a>
+      </div>
+      <div class="panel-body p-0">
+        {% if recent_students %}
+        <table class="table-clean">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Class</th>
+              <th>Gender</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in recent_students %}
+            <tr>
+              <td>
+                <div class="student-cell">
+                  <div class="avatar-sm">{{ s.name[0]|upper }}</div>
+                  <div>
+                    <div class="fw-600">{{ s.name }}</div>
+                    <div class="text-muted small">{{ s.student_id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge-class">{{ s.class }}-{{ s.section }}</span></td>
+              <td>{{ s.gender }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-people"></i>
+          <p>No students yet. <a href="{{ url_for('add_student') }}">Add one now</a>.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Achievements -->
+  <div class="col-lg-5">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="bi bi-trophy me-2"></i>Recent Achievements</h3>
+        <a href="{{ url_for('achievements') }}" class="panel-link">View all</a>
+      </div>
+      <div class="panel-body">
+        {% if recent_achievements %}
+          {% for a in recent_achievements %}
+          <div class="achievement-item">
+            <div class="ach-icon type-{{ a.competition_type|lower|replace(' ', '-') }}">
+              {% if a.competition_type == 'Sports' %}<i class="bi bi-dribbble"></i>
+              {% elif a.competition_type == 'Quiz' %}<i class="bi bi-lightbulb"></i>
+              {% elif a.competition_type == 'Coding Competition' %}<i class="bi bi-code-slash"></i>
+              {% elif a.competition_type == 'Science Fair' %}<i class="bi bi-flask"></i>
+              {% elif a.competition_type == 'Debate' %}<i class="bi bi-chat-quote"></i>
+              {% else %}<i class="bi bi-music-note"></i>{% endif %}
+            </div>
+            <div class="ach-body">
+              <div class="ach-name">{{ a.competition_name }}</div>
+              <div class="ach-meta">{{ a.student_name }} · {{ a.position }} · {{ a.date }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-trophy"></i>
+          <p>No achievements yet.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
