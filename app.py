@@ -5,9 +5,12 @@ from datetime import date, datetime
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = 'student_tracker_secret_key_2024'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-fallback-key-change-in-production')
 
-DATABASE = 'student_tracker.db'
+# On Render with a persistent disk, DB lives in /data. Locally it stays in project root.
+DB_DIR = os.environ.get('DB_DIR', '.')
+os.makedirs(DB_DIR, exist_ok=True)
+DATABASE = os.path.join(DB_DIR, 'student_tracker.db')
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -523,4 +526,4 @@ with app.app_context():
     init_db()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
