@@ -108,14 +108,23 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        conn = get_db()
-        teacher = conn.execute('SELECT * FROM teachers WHERE username=? AND password=?', (username, password)).fetchone()
-        conn.close()
-        if teacher:
-            session['teacher_id'] = teacher['id']
-            session['teacher_name'] = teacher['full_name'] or teacher['username']
-            return redirect(url_for('dashboard'))
-        flash('Invalid username or password.', 'danger')
+        if not username or not password:
+            flash('Please enter both username and password.', 'danger')
+            return render_template('login.html')
+        try:
+            conn = get_db()
+            teacher = conn.execute(
+                'SELECT * FROM teachers WHERE username=? AND password=?',
+                (username, password)
+            ).fetchone()
+            conn.close()
+            if teacher:
+                session['teacher_id'] = teacher['id']
+                session['teacher_name'] = teacher['full_name'] or teacher['username']
+                return redirect(url_for('dashboard'))
+            flash('Incorrect username or password. Please try again.', 'danger')
+        except Exception:
+            flash('Incorrect username or password. Please try again.', 'danger')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -509,6 +518,9 @@ def account():
     conn.close()
     return render_template('account.html', teacher=teacher)
 
-if __name__ == '__main__':
+# Ensure DB and tables exist whenever the app loads
+with app.app_context():
     init_db()
+
+if __name__ == '__main__':
     app.run(debug=True)
